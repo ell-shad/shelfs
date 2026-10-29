@@ -31,6 +31,10 @@ export interface ReaderOptions {
   onBookChanged(book: Book): void;
 }
 
+/** Controls that legitimately own the keyboard while focused. */
+const TEXT_ENTRY_SELECTOR =
+  "textarea, select, [contenteditable='true'], input:not([type='range']):not([type='checkbox']):not([type='radio']):not([type='button'])";
+
 type IconName = "back" | "contents" | "search" | "bookmark" | "notes" | "appearance" | "expand" | "prev" | "next";
 
 const ICONS: Record<IconName, string> = {
@@ -626,17 +630,47 @@ export class Reader {
     input.setAttribute("aria-label", t("reader_search"));
     const results = el("div", "search-results");
     results.setAttribute("role", "list");
-    field.appendChild(input);
+    let hits: SearchHit[] = [];
+    let rows: HTMLElement[] = [];
+    let current = -1;
+    const count = el("span", "search-count");
+    count.setAttribute("aria-live", "polite");
+
+    /** Move to a hit without closing the panel; Enter and Shift+Enter use it. */
+    const step = (delta: number) => {
+      if (!hits.length) return;
+      current = (current + delta + hits.length) % hits.length;
+      const hit = hits[current];
+      if (!hit) return;
+      count.textContent = `${current + 1} / ${hits.length}`;
+      void this.adapter?.revealSearch(hit);
+      for (const [index, row] of rows.entries()) {
+        row.classList.toggle("current", index === current);
+        row.setAttribute("aria-current", index === current ? "true" : "false");
+      }
+      rows[current]?.scrollIntoView({ block: "nearest" });
+    };
+    const prevButton = textButton("↑", () => step(-1), "ghost-btn icon-only");
+    prevButton.setAttribute("aria-label", t("reader_search_prev"));
+    prevButton.title = t("reader_search_prev");
+    const nextButton = textButton("↓", () => step(1), "ghost-btn icon-only");
+    nextButton.setAttribute("aria-label", t("reader_search_next"));
+    nextButton.title = t("reader_search_next");
+    field.append(input, count, prevButton, nextButton);
     body.append(field, results);
     const run = async () => {
       const query = input.value.trim();
+      hits = [];
+      rows = [];
+      current = -1;
+      count.textContent = "";
       if (!query) {
         results.replaceChildren(emptyNote(t("reader_search_hint")));
         return;
       }
       results.replaceChildren(emptyNote(t("reader_searching")));
       try {
-        const hits = await this.adapter?.search(query) ?? [];
+        hits = (await this.adapter?.search(query)) ?? [];
         results.replaceChildren();
         if (!hits.length) {
           results.append(emptyNote(t("reader_no_results")));
@@ -646,7 +680,9 @@ export class Reader {
         summary.textContent = t("reader_results", { count: hits.length });
         results.appendChild(summary);
         for (const hit of hits) {
-          results.appendChild(this.searchRow(hit, query));
+          const row = this.searchRow(hit, query);
+          rows.push(row);
+          results.appendChild(row);
         }
       } catch (error) {
         results.replaceChildren(emptyNote(apiErrorMessage(error)));
@@ -659,7 +695,16 @@ export class Reader {
     input.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        void run();
+        // Enter steps to the next hit, Shift+Enter to the previous one; with no
+        // results yet it runs the search.
+        if (hits.length) step(event.shiftKey ? -1 : 1);
+        else void run();
+      } else if (event.key === "ArrowDown" && hits.length) {
+        event.preventDefault();
+        step(1);
+      } else if (event.key === "ArrowUp" && hits.length) {
+        event.preventDefault();
+        step(-1);
       }
     });
     results.append(emptyNote(t("reader_search_hint")));
@@ -1086,7 +1131,11 @@ export class Reader {
       }
       return;
     }
-    if (target?.closest("input, textarea, select, [contenteditable='true']")) return;
+    // Only text-entry controls own their keys. Sliders and checkboxes are not
+    // text fields: the reader keeps its shortcuts while one has focus (the
+    // progress slider takes focus when a book opens, and typing into it would
+    // otherwise silently disable paging, search and bookmarks).
+    if (target?.closest(TEXT_ENTRY_SELECTOR)) return;
 
     const mod = event.ctrlKey || event.metaKey;
     if (mod && event.key.toLowerCase() === "f") {

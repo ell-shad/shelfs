@@ -255,6 +255,8 @@ const strings = {
   reader_searching: "Searching…",
   reader_no_results: "No matches in this book.",
   reader_results: "{count} results",
+  reader_search_prev: "Previous match",
+  reader_search_next: "Next match",
   reader_theme: "Theme",
   reader_theme_system: "System",
   reader_theme_light: "Light",

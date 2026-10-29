@@ -54,9 +54,23 @@ reader for both formats.
   layout, migrations, import, formats, anchors and zip safety, frontend unit tests,
   generated fixtures, headless GUI scripts, GitHub Actions CI.
 
+### Fixed
+
+- Reader shortcuts (paging, `T`, `B`, `Ctrl+F`, zoom) were ignored whenever the
+  progress slider had focus, which is exactly where focus lands after a panel
+  closes. Only text-entry controls own the keyboard now.
+- In-book search highlights were invisible in PDFs: the `bs-find` classes were never
+  styled for the PDF text layer (the EPUB reader styles its own copy inside the
+  chapter iframe).
+- The shelf hint wrapped onto a second line and read as two separate hints.
+
 ### Known limitations
 
 - Fixed-layout EPUB and vertical writing are best effort.
+- PDF search highlights and text selection can sit a few characters off the printed
+  word when a PDF has no embedded font: pdf.js lays the text layer out with
+  fallback-font metrics, so the transparent text drifts from the rendered glyphs.
+  Documents with embedded fonts align.
 - PDF pages arrive over IPC (see docs/DECISIONS.md), so one copy of the file is held
   in memory while it is open; very large PDFs are slower to open than they would be
   with range requests.

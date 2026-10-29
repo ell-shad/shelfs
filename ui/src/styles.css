@@ -1744,6 +1744,19 @@ dialog.modal::backdrop {
   transform-origin: 0% 0%;
 }
 
+/* In-page find hits. The EPUB reader styles the same classes inside its own
+   sandboxed chapter document; this is the PDF text layer, which lives here. */
+.pdf-page .textLayer .bs-find {
+  color: transparent;
+  background: color-mix(in srgb, var(--r-accent) 30%, transparent);
+  border-radius: 2px;
+}
+
+.pdf-page .textLayer .bs-find-current {
+  background: color-mix(in srgb, var(--r-accent) 62%, transparent);
+  outline: 1px solid var(--r-accent);
+}
+
 .pdf-page .textLayer ::selection {
   background: var(--r-selection);
 }
@@ -1855,6 +1868,20 @@ dialog.modal::backdrop {
 
 .search-hit:hover {
   background: color-mix(in srgb, var(--r-fg) 7%, transparent);
+}
+
+/* The hit the reader is showing, after Enter or the arrows in the field. */
+.search-hit.current {
+  background: color-mix(in srgb, var(--r-accent) 16%, transparent);
+  box-shadow: inset 2px 0 0 var(--r-accent);
+}
+
+.search-count {
+  align-self: center;
+  font-size: 11px;
+  color: var(--r-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .search-hit small {
