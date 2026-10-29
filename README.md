@@ -53,8 +53,8 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ```bash
 npm install                 # frontend dependencies (also copies pdf.js assets)
-npm run dev:web             # Vite dev server on http://127.0.0.1:1420
-npm run app:dev             # Tauri dev window (needs dev:web running)
+npm run app:dev             # Tauri dev window (starts Vite for you)
+npm run dev:web             # Vite alone, http://127.0.0.1:1420, for frontend work
 npm run build:web           # typecheck + production frontend bundle
 npm run app:build           # release binary, no installer
 npm run bundle:deb          # .deb in src-tauri/target/release/bundle/deb

@@ -150,7 +150,14 @@ export class Shell {
       svgIcon(icons.plus, 16),
       el("span", {}, t("addBook")),
     );
-    addButton.addEventListener("click", () => this.toggleAddMenu(addButton));
+    addButton.addEventListener("click", (event) => {
+      // The menu is closed by a document-level listener on outside clicks, and
+      // this click is still propagating towards it: without stopping here the
+      // menu would be removed in the same tick it was added, so the button
+      // looked dead. Toggling is handled by toggleAddMenu itself.
+      event.stopPropagation();
+      this.toggleAddMenu(addButton);
+    });
     addButton.addEventListener("keydown", (event) => {
       if (event.key === "ArrowDown") {
         event.preventDefault();

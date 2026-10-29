@@ -62,6 +62,7 @@ html[data-theme="dark"] {
   --danger: #e08469;
   --line: rgba(233, 238, 233, 0.14);
   --surface: rgba(34, 45, 56, 0.86);
+  --surface-solid: #222d38;
   --surface-2: rgba(233, 238, 233, 0.07);
   --shadow: 0 20px 55px rgba(0, 0, 0, 0.5);
   --shadow-soft: 0 6px 22px rgba(0, 0, 0, 0.35);

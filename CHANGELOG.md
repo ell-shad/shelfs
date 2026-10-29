@@ -3,6 +3,19 @@
 All notable changes to Bookshelf. Format follows Keep a Changelog; versions follow
 SemVer once 1.0 is out.
 
+## [Unreleased]
+
+### Fixed
+
+- **The Add book button did nothing.** The button opened its menu on click, and
+  the same click then reached the document-level "click outside closes the menu"
+  listener, which removed the menu again in the same tick. The click no longer
+  propagates, so the menu stays open and its "Add book" / "Add a folder…" items
+  are reachable.
+- **The Add book menu was unreadable in dark theme.** The dark palette never
+  defined `--surface-solid`, so the menu fell back to the light cream surface with
+  light text on top of it. The variable is now defined per theme.
+
 ## [0.1.0] — 2026-10-28
 
 First release: a working local PDF/EPUB library with a 3D shelf and a built-in
