@@ -1,0 +1,16 @@
+node_modules/
+ui/dist/
+# Copied out of node_modules by scripts/sync-pdfjs-assets.mjs before dev/build.
+ui/public/pdfjs/
+target/
+src-tauri/target/
+src-tauri/gen/
+.vite/
+*.log
+.DS_Store
+/tools/
+/test-output/
+/perf/
+*.deb
+*.AppImage
+!/.freebuff/

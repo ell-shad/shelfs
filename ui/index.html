@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>My Bookshelf</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/Gelasio-Variable.ttf" as="font" type="font/ttf" crossorigin />
+  </head>
+  <body>
+    <div id="app">
+      <main id="shelf-root" aria-label="Bookcase" tabindex="-1"></main>
+      <div id="overlay-root"></div>
+      <div id="reader-root" hidden></div>
+      <div id="toast-root" aria-live="polite" aria-atomic="false"></div>
+    </div>
+    <div id="boot" role="status" aria-live="polite">
+      <div class="boot-mark" aria-hidden="true"></div>
+      <p>Opening your bookshelf…</p>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

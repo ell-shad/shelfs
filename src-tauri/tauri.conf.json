@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Bookshelf",
+  "version": "0.1.0",
+  "identifier": "com.example.Bookshelf",
+  "build": {
+    "beforeDevCommand": "npm run dev:web",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build:web",
+    "frontendDist": "../ui/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "My Bookshelf",
+        "width": 1280,
+        "height": 840,
+        "minWidth": 880,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "dragDropEnabled": true,
+        "theme": null
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' bookshelf: http://bookshelf.localhost; img-src 'self' bookshelf: http://bookshelf.localhost data: blob:; media-src 'self' bookshelf: http://bookshelf.localhost; font-src 'self' bookshelf: http://bookshelf.localhost data:; connect-src 'self' ipc: http://ipc.localhost bookshelf: http://bookshelf.localhost; worker-src 'self' blob:; frame-src 'self' bookshelf: http://bookshelf.localhost; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["deb", "appimage"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png"
+    ],
+    "category": "Productivity",
+    "shortDescription": "Your local PDF and EPUB library on a 3D bookcase",
+    "longDescription": "Bookshelf keeps your PDF and EPUB files on your own disk and draws them as books on a wooden bookcase. It reads them, remembers where you stopped, and never touches the files themselves.",
+    "copyright": "© 2026 Bookshelf contributors",
+    "publisher": "Bookshelf",
+    "homepage": "https://example.invalid/bookshelf",
+    "fileAssociations": [
+      {
+        "ext": ["pdf", "epub"],
+        "mimeType": "application/pdf",
+        "description": "PDF document",
+        "role": "Viewer"
+      },
+      {
+        "ext": ["epub"],
+        "mimeType": "application/epub+zip",
+        "description": "EPUB book",
+        "role": "Viewer"
+      }
+    ],
+    "linux": {
+      "deb": {
+        "recommends": ["fonts-noto-core", "fonts-noto-cjk"],
+        "files": {
+          "usr/share/metainfo/com.example.Bookshelf.metainfo.xml": "../packaging/com.example.Bookshelf.metainfo.xml"
+        }
+      }
+    }
+  }
+}

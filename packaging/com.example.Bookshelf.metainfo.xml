@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.example.Bookshelf</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT OR Apache-2.0</project_license>
+  <name>Bookshelf</name>
+  <summary>Your local PDF and EPUB library on a 3D bookcase</summary>
+  <description>
+    <p>
+      Bookshelf keeps your PDF and EPUB files on your own disk and draws them as books on a
+      wooden bookcase. It reads them, remembers where you stopped, and never touches the files
+      themselves.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Import PDF and EPUB files from disk, drag-and-drop, or the file manager</li>
+      <li>A 3D bookcase that grows a new case for every shelf-full of books</li>
+      <li>Built-in readers with bookmarks, highlights, notes and full-text search</li>
+      <li>Everything offline and private: no accounts, no telemetry, no network access</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">bookshelf.desktop</launchable>
+  <url type="homepage">https://example.invalid/bookshelf</url>
+  <categories>
+    <category>Office</category>
+    <category>Viewer</category>
+  </categories>
+  <keywords>
+    <keyword>books</keyword>
+    <keyword>ebook</keyword>
+    <keyword>pdf</keyword>
+    <keyword>epub</keyword>
+    <keyword>reader</keyword>
+  </keywords>
+  <screenshots>
+    <screenshot type="default">
+      <caption>The bookcase at night</caption>
+      <image>https://example.invalid/bookshelf/screenshot-dark.png</image>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="0.1.0" date="2026-10-25">
+      <description><p>First release: library, 3D shelf, PDF and EPUB readers.</p></description>
+    </release>
+  </releases>
+  <content_rating type="oars-1.1" />
+</appstream>

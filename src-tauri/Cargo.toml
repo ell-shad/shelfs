@@ -1,0 +1,68 @@
+[package]
+name = "bookshelf"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+license = "MIT"
+description = "Bookshelf — a local-first PDF/EPUB library on a 3D bookcase"
+repository = "https://example.invalid/bookshelf"
+default-run = "bookshelf"
+
+[lib]
+name = "bookshelf_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "bookshelf"
+path = "src/main.rs"
+
+# Developer tools. Gated behind a feature so that the .deb, the AppImage and a
+# plain `cargo build` ship only the app itself.
+[features]
+dev-tools = []
+
+[[bin]]
+name = "export-bindings"
+path = "src/bin/export-bindings.rs"
+required-features = ["dev-tools"]
+
+[[bin]]
+name = "make-fixtures"
+path = "src/bin/make-fixtures.rs"
+required-features = ["dev-tools"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+tauri = { version = "2.12.5", features = [] }
+tauri-plugin-dialog = "2.8.3"
+tauri-plugin-single-instance = "2.5.4"
+tauri-specta = { version = "=2.0.0-rc.26", features = ["derive", "typescript"] }
+specta = { version = "=2.0.0-rc.26", features = ["derive"] }
+specta-typescript = "0.0.13"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+thiserror = "2.0.21"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+rusqlite = { version = "0.41.0", features = ["bundled"] }
+zip = { version = "9.1.0", default-features = false, features = ["deflate"] }
+roxmltree = "0.21.2"
+lopdf = "0.46.0"
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp", "tiff"] }
+blake3 = "1.8.7"
+notify = "8.2.1"
+directories = "6.0.0"
+infer = "0.22.0"
+lol_html = "3.0.2"
+
+[dev-dependencies]
+tempfile = "3.27.0"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
