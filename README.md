@@ -1,5 +1,9 @@
 # Bookshelf
 
+[![CI](https://github.com/ell-shad/shelfs/actions/workflows/ci.yml/badge.svg)](https://github.com/ell-shad/shelfs/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+[![Made with Rust and Tauri](https://img.shields.io/badge/made%20with-Rust%20%2B%20Tauri-9d6b3f)](https://tauri.app)
+
 A local-first PDF and EPUB library for Ubuntu, drawn as a wooden bookcase you can
 turn, zoom and take books from. Everything stays on your disk: no account, no
 network access, no telemetry. Book files are opened read-only and never modified.
