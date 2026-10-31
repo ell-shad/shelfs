@@ -7,6 +7,15 @@ SemVer once 1.0 is out.
 
 ### Fixed
 
+- **The reader's appearance and thumbnail panels opened invisibly.** The side
+  panel is the first grid child and the stage is pinned to column 2, so the panel
+  auto-placed into column 1. That is the 0-width column when a panel sits on the
+  right, so "Reading appearance" and "Page thumbnails" had nothing to show, while
+  the left-hand panels (contents, search, notes) worked. The panel now declares
+  its column and is clipped to its own box.
+- **Reader panel controls could be invisible.** The zoom and rotate buttons used
+  the shelf theme's colours, which went dark-on-dark whenever the shelf was light
+  and the reader dark; they now use the reading palette.
 - **The Add book button did nothing.** The button opened its menu on click, and
   the same click then reached the document-level "click outside closes the menu"
   listener, which removed the menu again in the same tick. The click no longer

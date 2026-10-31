@@ -1590,6 +1590,35 @@ dialog.modal::backdrop {
   background: var(--r-panel);
   border-inline: 1px solid transparent;
   min-width: 0;
+  /* The panel is the first grid child and the stage is pinned to column 2, so
+     without explicit placement the panel auto-places into column 1. That is
+     the 0-width column when it sits on the right, which made the appearance
+     and thumbnail panels open invisibly. */
+  grid-column: 1;
+  /* Keep the panel's content inside its own box: nothing in a side panel should
+     be able to paint over the toolbar or the stage. */
+  contain: paint;
+}
+
+/* Buttons inside the reader follow the reading palette, not the shelf theme:
+   with the shelf in light mode and the reader in dark, the app-level colours
+   left these controls dark-on-dark and effectively invisible. */
+#reader-root .ghost-btn {
+  color: var(--r-fg);
+  border-color: var(--r-border);
+  background: color-mix(in srgb, var(--r-fg) 6%, transparent);
+}
+
+#reader-root .ghost-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--r-fg) 13%, transparent);
+}
+
+#reader-root .ghost-btn:disabled {
+  opacity: 0.4;
+}
+
+#reader-root[data-panel="right"] .reader-side {
+  grid-column: 3;
 }
 
 #reader-root[data-panel="left"] .reader-side-left,
