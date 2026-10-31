@@ -80,6 +80,8 @@ export const api = {
   removeBook: (bookId: number): Promise<void> => unwrapVoid(commands.removeBook(bookId)),
   moveBook: (bookId: number, targetIndex: number): Promise<void> =>
     unwrapVoid(commands.moveBook(bookId, targetIndex)),
+  setBookShelf: (bookId: number, shelf: number | null): Promise<void> =>
+    unwrapVoid(commands.setBookShelf(bookId, shelf)),
   relinkBook: (bookId: number, path: string): Promise<Book> =>
     unwrap(commands.relinkBook(bookId, path)),
   refreshMissing: (): Promise<number[]> => unwrap(commands.refreshMissing()),

@@ -108,6 +108,7 @@ fn snapshot(state: &AppState) -> AppResult<LibrarySnapshot> {
             thickness: b.thickness(),
             height: b.height,
             depth: b.depth,
+            shelf: b.shelf.map(|shelf| shelf.max(0) as u32),
         })
         .collect();
     let layout = layout::pack(&layout_books);
@@ -355,6 +356,19 @@ pub fn remove_book(app: AppHandle, state: St<'_>, book_id: i64) -> AppResult<()>
 #[specta::specta]
 pub fn move_book(app: AppHandle, state: St<'_>, book_id: i64, target_index: i64) -> AppResult<()> {
     state.db().reorder(book_id, target_index)?;
+    let _ = app.emit("library-changed", ());
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn set_book_shelf(
+    app: AppHandle,
+    state: St<'_>,
+    book_id: i64,
+    shelf: Option<i64>,
+) -> AppResult<()> {
+    state.db().set_book_shelf(book_id, shelf)?;
     let _ = app.emit("library-changed", ());
     Ok(())
 }

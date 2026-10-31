@@ -59,6 +59,7 @@ pub fn specta_builder() -> tauri_specta::Builder<tauri::Wry> {
             commands::update_book,
             commands::remove_book,
             commands::move_book,
+            commands::set_book_shelf,
             commands::relink_book,
             commands::refresh_missing,
             commands::search_library,

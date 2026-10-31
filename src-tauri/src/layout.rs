@@ -1,9 +1,15 @@
 //! Shelf packing: books fill a case left to right, shelf by shelf. When all
 //! four shelves of a case are full a new, identical case is added to its right.
 //!
+//! A book may also be pinned to a shelf by hand (`LayoutBook::shelf`), which is
+//! how dragging a book onto another shelf is remembered. Pinned books claim
+//! their shelf first; the rest are packed around them.
+//!
 //! All measurements are in three.js scene units and mirror the prototype:
 //! usable shelf width 7.7 (-3.85 .. 3.85), shelves 1.9 apart, 4 shelves per
 //! case, 0.012 gap between books.
+
+use std::collections::BTreeMap;
 
 use crate::models::{ShelfLayout, ShelfSlot};
 
@@ -21,39 +27,54 @@ pub struct LayoutBook {
     pub thickness: f64,
     pub height: f64,
     pub depth: f64,
+    /// Shelf the reader placed this book on (0-based across cases), if any.
+    pub shelf: Option<u32>,
+}
+
+/// The first shelf, counting up from `start`, with room for `thickness`.
+fn fit_shelf(cursors: &BTreeMap<u32, f64>, start: u32, thickness: f64) -> u32 {
+    let mut shelf = start;
+    loop {
+        let cursor = cursors.get(&shelf).copied().unwrap_or(USABLE_MIN_X);
+        if cursor + thickness <= USABLE_MAX_X + f64::EPSILON {
+            return shelf;
+        }
+        shelf += 1;
+    }
 }
 
 pub fn pack(books: &[LayoutBook]) -> ShelfLayout {
-    let mut slots = Vec::with_capacity(books.len());
-    let mut case_index: u32 = 0;
-    let mut shelf_index: u32 = 0;
-    let mut cursor = USABLE_MIN_X;
+    let mut slots: Vec<Option<ShelfSlot>> = vec![None; books.len()];
+    let mut cursors: BTreeMap<u32, f64> = BTreeMap::new();
+    let mut max_shelf: u32 = 0;
 
-    for book in books {
-        let thickness = book.thickness.clamp(0.16, 0.55);
-        // Leave room for the gap after every book, so a book never touches the
-        // side panel.
-        if cursor + thickness > USABLE_MAX_X + f64::EPSILON {
-            shelf_index += 1;
-            cursor = USABLE_MIN_X;
-            if shelf_index >= SHELVES_PER_CASE {
-                shelf_index = 0;
-                case_index += 1;
+    // Two passes: books placed by hand first, so their shelves are reserved
+    // before automatic books start filling from the left.
+    for pinned in [true, false] {
+        for (index, book) in books.iter().enumerate() {
+            if book.shelf.is_some() != pinned {
+                continue;
             }
+            let thickness = book.thickness.clamp(0.16, 0.55);
+            let start = if pinned { book.shelf.unwrap_or(0) } else { 0 };
+            let shelf = fit_shelf(&cursors, start, thickness);
+            let x = cursors.get(&shelf).copied().unwrap_or(USABLE_MIN_X);
+            cursors.insert(shelf, x + thickness + BOOK_GAP);
+            max_shelf = max_shelf.max(shelf);
+            slots[index] = Some(ShelfSlot {
+                book_id: book.id,
+                case_index: shelf / SHELVES_PER_CASE,
+                shelf_index: shelf % SHELVES_PER_CASE,
+                x,
+                thickness,
+                height: book.height,
+                depth: book.depth,
+            });
         }
-        slots.push(ShelfSlot {
-            book_id: book.id,
-            case_index,
-            shelf_index,
-            x: cursor,
-            thickness,
-            height: book.height,
-            depth: book.depth,
-        });
-        cursor += thickness + BOOK_GAP;
     }
 
-    let case_count = case_index + 1;
+    let slots: Vec<ShelfSlot> = slots.into_iter().flatten().collect();
+    let case_count = max_shelf / SHELVES_PER_CASE + 1;
     ShelfLayout { slots, case_count }
 }
 
@@ -67,6 +88,14 @@ mod tests {
             thickness,
             height: 1.3,
             depth: 0.9,
+            shelf: None,
+        }
+    }
+
+    fn pinned(id: i64, thickness: f64, shelf: u32) -> LayoutBook {
+        LayoutBook {
+            shelf: Some(shelf),
+            ..book(id, thickness)
         }
     }
 
@@ -155,5 +184,42 @@ mod tests {
         let layout = pack(&[book(1, 5.0), book(2, 0.01)]);
         assert_eq!(layout.slots[0].thickness, 0.55);
         assert_eq!(layout.slots[1].thickness, 0.16);
+    }
+
+    #[test]
+    fn a_pinned_book_keeps_its_shelf() {
+        let layout = pack(&[book(1, 0.3), pinned(2, 0.3, 2), book(3, 0.3)]);
+        assert_eq!(layout.slots[1].shelf_index, 2);
+        assert_eq!(layout.slots[1].case_index, 0);
+        // Automatic books fill the shelves before it.
+        assert_eq!(layout.slots[0].shelf_index, 0);
+        assert_eq!(layout.slots[2].shelf_index, 0);
+        assert_eq!(layout.case_count, 1);
+    }
+
+    #[test]
+    fn a_pinned_book_can_open_a_new_case() {
+        let layout = pack(&[book(1, 0.3), pinned(2, 0.3, 5)]);
+        assert_eq!(layout.slots[1].case_index, 1);
+        assert_eq!(layout.slots[1].shelf_index, 1);
+        assert_eq!(layout.case_count, 2);
+    }
+
+    #[test]
+    fn pinned_books_share_a_shelf_in_reading_order() {
+        let layout = pack(&[pinned(1, 0.3, 1), pinned(2, 0.3, 1)]);
+        assert_eq!(layout.slots[0].shelf_index, 1);
+        assert_eq!(layout.slots[1].shelf_index, 1);
+        assert!(layout.slots[1].x > layout.slots[0].x);
+    }
+
+    #[test]
+    fn a_full_pinned_shelf_overflows_to_the_next_one() {
+        let mut books: Vec<_> = (0..15).map(|i| pinned(i, 0.5, 2)).collect();
+        books.push(pinned(99, 0.5, 2));
+        let layout = pack(&books);
+        let last = layout.slots.last().unwrap();
+        assert_eq!(last.shelf_index, 3);
+        assert_eq!(last.x, USABLE_MIN_X);
     }
 }

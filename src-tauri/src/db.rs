@@ -11,8 +11,8 @@ use crate::models::*;
 use crate::util::{now_ms, FoldedText};
 
 const BOOK_COLUMNS: &str = "id, title, author, format, path, content_hash, pages, color, height, \
-     depth, status, cover_path, position, added_at, last_opened_at, progress, locator, missing, \
-     encrypted, language, size_bytes";
+     depth, status, cover_path, position, shelf, added_at, last_opened_at, progress, locator, \
+     missing, encrypted, language, size_bytes";
 
 const SCHEMA_V1: &str = r#"
 CREATE TABLE books (
@@ -91,7 +91,13 @@ CREATE TABLE chapter_text (
 CREATE INDEX books_position ON books(position);
 "#;
 
-pub const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2];
+/// A book can be pinned to a shelf by hand, independently of its position in
+/// the reading order.
+const SCHEMA_V3: &str = r#"
+ALTER TABLE books ADD COLUMN shelf INTEGER;
+"#;
+
+pub const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2, SCHEMA_V3];
 
 pub struct Db {
     conn: Connection,
@@ -332,6 +338,24 @@ impl Db {
             )?;
         }
         tx.commit()?;
+        Ok(())
+    }
+
+    /// Pin a book to a shelf (0-based across cases) or release it (`None`), so
+    /// the packer places it automatically again.
+    pub fn set_book_shelf(&self, id: i64, shelf: Option<i64>) -> AppResult<()> {
+        if let Some(shelf) = shelf {
+            if shelf < 0 {
+                return Err(AppError::Invalid("a shelf cannot be negative".into()));
+            }
+        }
+        let changed = self.conn.execute(
+            "UPDATE books SET shelf = ?1 WHERE id = ?2",
+            params![shelf, id],
+        )?;
+        if changed == 0 {
+            return Err(AppError::NotFound(format!("book {id}")));
+        }
         Ok(())
     }
 
@@ -768,6 +792,7 @@ fn row_to_book(row: &Row<'_>) -> rusqlite::Result<Book> {
         cover_path: row.get("cover_path")?,
         cover_url: None,
         position: row.get("position")?,
+        shelf: row.get("shelf")?,
         added_at: row.get("added_at")?,
         last_opened_at: row.get("last_opened_at")?,
         progress: row.get("progress")?,

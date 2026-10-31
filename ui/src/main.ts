@@ -76,6 +76,7 @@ async function main(): Promise<void> {
       else shell.hideTooltip();
     },
     onReorder: (bookId, targetIndex) => void reorder(bookId, targetIndex),
+    onMoveToShelf: (bookId, shelf) => void placeOnShelf(bookId, shelf),
     onDrag: () => {
       /* drop position is computed inside ShelfView; no shell chrome needed */
     },
@@ -296,6 +297,17 @@ async function main(): Promise<void> {
     try {
       await api.moveBook(bookId, targetIndex);
       await reload();
+    } catch (error) {
+      shell.toast(apiErrorMessage(error), { kind: "error" });
+    }
+  }
+
+  /** A book dragged onto another shelf stays there. */
+  async function placeOnShelf(bookId: number, targetShelf: number): Promise<void> {
+    try {
+      await api.setBookShelf(bookId, targetShelf);
+      await reload();
+      shelf.panToBook(bookId);
     } catch (error) {
       shell.toast(apiErrorMessage(error), { kind: "error" });
     }

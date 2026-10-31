@@ -93,6 +93,9 @@ pub struct Book {
     #[serde(default)]
     pub cover_url: Option<String>,
     pub position: i64,
+    /// Shelf the reader placed this book on (0-based, counted across cases).
+    /// `None` lets the packer decide.
+    pub shelf: Option<i64>,
     pub added_at: i64,
     pub last_opened_at: Option<i64>,
     /// 0.0 .. 1.0

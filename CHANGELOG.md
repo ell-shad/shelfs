@@ -5,7 +5,29 @@ SemVer once 1.0 is out.
 
 ## [Unreleased]
 
+### Added
+
+- **Place a book on any shelf.** Dragging a book up or down onto another shelf
+  pins it there; the shelf it was dropped on is remembered per book, the board
+  under the pointer lights up while dragging, and dropping a book back beside its
+  neighbours still reorders them. Pinned books reserve their shelf and the rest
+  of the library packs around them.
+- **Warmer, less clinical shelf lighting.** The room uses a cream wall, oak floor
+  and a lighter back panel instead of a green-grey wall and an almost-black back;
+  a warm ambient fill, a brighter sun and a stronger lamp replace the flat, cold
+  wash, the boards gained a darker front lip, and books lean by a fraction of a
+  degree so a shelf no longer looks machine-stacked.
+
 ### Fixed
+
+- **The page jumped when a reader panel opened.** The side panel took a grid
+  column, so opening it shrank the stage, re-fitted the PDF and slid the sheet
+  sideways (with the thumbnail panel it disappeared behind the squeezed column).
+  The panel now floats over the page, so the document never moves.
+- **Night mode switched itself off.** Pages got the `night` class when they were
+  built, but a rebuilt page (new layout, zoom, rotation) came back without it, so
+  changing almost any appearance setting showed a bright page again while the
+  toggle still read on. New pages now carry the night class too.
 
 - **The reader's appearance and thumbnail panels opened invisibly.** The side
   panel is the first grid child and the stage is pinned to column 2, so the panel

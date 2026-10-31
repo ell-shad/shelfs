@@ -19,19 +19,28 @@ const DAMP_BASE = 0.0009;
 /** Spine textures drawn per frame; see pumpSpines. */
 const SPINES_PER_FRAME = 12;
 const FOCUS_POS = new THREE.Vector3(0, 4.55, 3.55);
+const SHELF_WIDTH = 7.7;
+const SHELVES_PER_CASE = 4;
+
+/** A hair of lean, so a shelf of books does not look machine-stacked. */
+function bookTilt(id: number): number {
+  return (((id * 37) % 13) - 6) * 0.0022;
+}
 
 const COLORS = {
   light: {
-    wall: 0xc5cfc3,
-    floor: 0x8a7458,
-    ceiling: 0xd7ded2,
-    cream: 0xefe6d2,
+    // Warm plaster, oak floor and cream board: the old green-grey wall and damp
+    // grey ceiling read cold next to the wood.
+    wall: 0xeadfc8,
+    floor: 0xa9835a,
+    ceiling: 0xf3ecdd,
+    cream: 0xf3ead6,
   },
   dark: {
-    wall: 0x1b2530,
-    floor: 0x3a3029,
-    ceiling: 0x22303c,
-    cream: 0xe6dbc4,
+    wall: 0x2b241c,
+    floor: 0x4a3729,
+    ceiling: 0x322a21,
+    cream: 0xece2cc,
   },
 };
 
@@ -39,6 +48,8 @@ export interface ShelfCallbacks {
   onSelect(bookId: number | null): void;
   onHover(bookId: number | null, x: number, y: number): void;
   onReorder(bookId: number, targetIndex: number): void;
+  /** A book was dropped on another shelf; `shelf` is 0-based across cases. */
+  onMoveToShelf(bookId: number, shelf: number): void;
   onDrag(bookId: number, targetIndex: number, x: number, y: number): void;
   onCaseChange(caseIndex: number, caseCount: number): void;
   onRead(bookId: number): void;
@@ -110,8 +121,12 @@ export class ShelfView {
   private floor: THREE.Mesh;
   private wall: THREE.Mesh;
   private hemisphere: THREE.HemisphereLight;
+  private ambient: THREE.AmbientLight;
   private sun: THREE.DirectionalLight;
   private lamp: THREE.PointLight;
+  private trimMaterial: THREE.MeshStandardMaterial;
+  private dropHighlight: THREE.Mesh;
+  private dropPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
   private yaw = 0;
   private targetYaw = 0;
@@ -176,12 +191,17 @@ export class ShelfView {
 
     this.camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 200);
     this.scene.background = new THREE.Color(COLORS.light.wall);
-    this.scene.fog = new THREE.Fog(COLORS.light.wall, 30, 70);
+    this.scene.fog = new THREE.Fog(COLORS.light.wall, 36, 80);
 
-    this.hemisphere = new THREE.HemisphereLight(0xfff1dc, 0x3a2a1c, 1.35);
+    this.hemisphere = new THREE.HemisphereLight(0xfff4e6, 0x6d5440, 1.8);
     this.scene.add(this.hemisphere);
 
-    this.sun = new THREE.DirectionalLight(0xffd8a6, 2.7);
+    // A little warm bounce, so the room reads as daylight instead of a cold,
+    // even ambient wash.
+    this.ambient = new THREE.AmbientLight(0xffe9d2, 0.35);
+    this.scene.add(this.ambient);
+
+    this.sun = new THREE.DirectionalLight(0xffd2a2, 3.1);
     this.sun.position.set(5.5, 11, 8);
     this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048);
@@ -196,7 +216,7 @@ export class ShelfView {
     this.scene.add(this.sun);
     this.scene.add(this.sun.target);
 
-    this.lamp = new THREE.PointLight(0xffb877, 18, 30, 2);
+    this.lamp = new THREE.PointLight(0xffb478, 22, 30, 2);
     this.lamp.position.set(-3.4, 6.2, 3.2);
     this.scene.add(this.lamp);
 
@@ -210,11 +230,31 @@ export class ShelfView {
       roughness: 0.72,
       metalness: 0,
     });
+    // The back panel sits in shadow most of the time, so it takes the lighter
+    // board: the darkest grain here turned the inside of every case into a void.
     this.backMaterial = new THREE.MeshStandardMaterial({
-      map: this.darkWoodTexture,
-      roughness: 0.9,
+      map: this.woodTexture,
+      roughness: 0.92,
       metalness: 0,
     });
+    this.trimMaterial = new THREE.MeshStandardMaterial({
+      map: this.darkWoodTexture,
+      roughness: 0.62,
+      metalness: 0.04,
+    });
+
+    // Drop marker: a lit shelf board, shown while a book is dragged over it.
+    this.dropHighlight = new THREE.Mesh(
+      new THREE.PlaneGeometry(SHELF_WIDTH, SHELF_SPACING - 0.16),
+      new THREE.MeshBasicMaterial({
+        color: 0xffd9a0,
+        transparent: true,
+        opacity: 0.22,
+        depthWrite: false,
+      }),
+    );
+    this.dropHighlight.visible = false;
+    this.scene.add(this.dropHighlight);
 
     this.floor = new THREE.Mesh(
       new THREE.PlaneGeometry(240, 90),
@@ -324,6 +364,17 @@ export class ShelfView {
 
     for (let shelf = 0; shelf < 5; shelf++) {
       addBox(BOARD_W, BOARD_T, BOARD_D, 0, shelf * SHELF_SPACING, 0, this.boardMaterial);
+      // A darker lip on the front edge gives the board some thickness.
+      addBox(
+        BOARD_W,
+        BOARD_T * 0.55,
+        0.07,
+        0,
+        shelf * SHELF_SPACING - 0.01,
+        BOARD_D / 2 + 0.02,
+        this.trimMaterial,
+        false,
+      );
     }
     addBox(SIDE_W, CASE_H, BOARD_D, -(BOARD_W / 2 - SIDE_W / 2), CASE_H / 2, 0, this.boardMaterial);
     addBox(SIDE_W, CASE_H, BOARD_D, BOARD_W / 2 - SIDE_W / 2, CASE_H / 2, 0, this.boardMaterial);
@@ -354,17 +405,16 @@ export class ShelfView {
             isNew && !this.reducedMotion
               ? new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35, 0.5, 0.4))
               : new THREE.Quaternion(),
-          targetQuat: new THREE.Quaternion(),
+          targetQuat: new THREE.Quaternion().setFromEuler(
+            new THREE.Euler(0, 0, bookTilt(item.book.id)),
+          ),
           pull: 0,
           targetPull: 0,
         });
       } else {
         existing.target.copy(target);
-        if (!this.reducedMotion) {
-          existing.targetQuat.identity();
-        } else {
-          existing.quat.identity();
-        }
+        existing.targetQuat.setFromEuler(new THREE.Euler(0, 0, bookTilt(item.book.id)));
+        if (this.reducedMotion) existing.quat.copy(existing.targetQuat);
       }
     }
     return view;
@@ -467,13 +517,15 @@ export class ShelfView {
     (this.floor.material as THREE.MeshStandardMaterial).color.setHex(palette.floor);
     (this.wall.material as THREE.MeshStandardMaterial).color.setHex(palette.wall);
     this.creamMaterial.color.setHex(palette.cream);
-    this.hemisphere.color.setHex(this.theme === "dark" ? 0xffd9a8 : 0xfff1dc);
-    this.hemisphere.groundColor.setHex(this.theme === "dark" ? 0x1a120c : 0x3a2a1c);
-    this.hemisphere.intensity = this.theme === "dark" ? 0.75 : 1.35;
-    this.sun.intensity = this.theme === "dark" ? 1.5 : 2.7;
-    this.lamp.intensity = this.theme === "dark" ? 26 : 18;
+    this.hemisphere.color.setHex(this.theme === "dark" ? 0xffd9a8 : 0xfff4e6);
+    this.hemisphere.groundColor.setHex(this.theme === "dark" ? 0x2a1e14 : 0x6d5440);
+    this.hemisphere.intensity = this.theme === "dark" ? 1.05 : 1.8;
+    this.ambient.intensity = this.theme === "dark" ? 0.22 : 0.35;
+    this.sun.intensity = this.theme === "dark" ? 1.9 : 3.1;
+    this.lamp.intensity = this.theme === "dark" ? 30 : 22;
+    this.trimMaterial.color.setHex(this.theme === "dark" ? 0xb8a693 : 0xffffff);
     this.boardMaterial.color.setHex(this.theme === "dark" ? 0x9b8a78 : 0xffffff);
-    this.backMaterial.color.setHex(this.theme === "dark" ? 0x8a7c6c : 0xffffff);
+    this.backMaterial.color.setHex(this.theme === "dark" ? 0x7d6a56 : 0xd8c4a8);
   }
 
   setPerformanceMode(enabled: boolean): void {
@@ -784,6 +836,7 @@ export class ShelfView {
 
       if (down.bookId !== null && this.dragMoved) {
         this.dragging = true;
+        this.showDrop(this.shelfAt(event.clientX, event.clientY));
         const targetIndex = this.indexAtScreenX(event.clientX);
         this.callbacks.onDrag(down.bookId, targetIndex, event.clientX, event.clientY);
       } else if (this.panning) {
@@ -834,10 +887,25 @@ export class ShelfView {
     this.pointerDown = null;
     this.orbiting = false;
     this.panning = false;
+    this.showDrop(null);
     this.renderer.domElement.style.cursor = "grab";
     if (!down) return;
     if (this.dragging && down.bookId !== null) {
       this.dragging = false;
+      const shelf = this.shelfAt(event.clientX, event.clientY);
+      const here = this.slots.get(down.bookId);
+      // Dropped on a different shelf: pin it there instead of reordering.
+      if (
+        shelf &&
+        here &&
+        (shelf.caseIndex !== here.caseIndex || shelf.shelfIndex !== here.shelfIndex)
+      ) {
+        this.callbacks.onMoveToShelf(
+          down.bookId,
+          shelf.caseIndex * SHELVES_PER_CASE + shelf.shelfIndex,
+        );
+        return;
+      }
       const target = this.indexAtScreenX(event.clientX);
       this.callbacks.onReorder(down.bookId, target);
       return;
@@ -853,6 +921,7 @@ export class ShelfView {
   };
 
   private onPointerLeave = (): void => {
+    this.showDrop(null);
     if (this.hoverId !== null) {
       const state = this.states.get(this.hoverId);
       if (state) state.targetPull = 0;
@@ -921,6 +990,38 @@ export class ShelfView {
       }
     }
     return bestIndex;
+  }
+
+  /** Which shelf, if any, is under the pointer (used while dragging a book). */
+  private shelfAt(
+    clientX: number,
+    clientY: number,
+  ): { caseIndex: number; shelfIndex: number } | null {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    this.pointer.set(
+      ((clientX - rect.left) / rect.width) * 2 - 1,
+      -((clientY - rect.top) / rect.height) * 2 + 1,
+    );
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    const point = new THREE.Vector3();
+    if (!this.raycaster.ray.intersectPlane(this.dropPlane, point)) return null;
+    const caseIndex = clamp(Math.round(point.x / CASE_PITCH), 0, this.caseCount - 1);
+    const row = Math.floor((point.y - SHELF_BASE_Y) / SHELF_SPACING);
+    if (row < 0 || row >= SHELVES_PER_CASE) return null;
+    return { caseIndex, shelfIndex: row };
+  }
+
+  private showDrop(target: { caseIndex: number; shelfIndex: number } | null): void {
+    if (!target) {
+      this.dropHighlight.visible = false;
+      return;
+    }
+    this.dropHighlight.visible = true;
+    this.dropHighlight.position.set(
+      target.caseIndex * CASE_PITCH,
+      target.shelfIndex * SHELF_SPACING + SHELF_BASE_Y + SHELF_SPACING / 2 - 0.06,
+      0.72,
+    );
   }
 
   focusBook(bookId: number): void {
@@ -1110,6 +1211,10 @@ export class ShelfView {
     this.creamMaterial.dispose();
     this.boardMaterial.dispose();
     this.backMaterial.dispose();
+    this.trimMaterial.dispose();
+    this.dropHighlight.geometry.dispose();
+    (this.dropHighlight.material as THREE.Material).dispose();
+    this.scene.remove(this.dropHighlight);
     (this.floor.material as THREE.Material).dispose();
     (this.floor.geometry).dispose();
     (this.wall.material as THREE.Material).dispose();

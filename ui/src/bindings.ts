@@ -16,6 +16,7 @@ export const commands = {
 	updateBook: (bookId: number, patch: BookPatch_Deserialize) => typedError<Book_Serialize, string>(__TAURI_INVOKE("update_book", { bookId, patch })),
 	removeBook: (bookId: number) => typedError<null, string>(__TAURI_INVOKE("remove_book", { bookId })),
 	moveBook: (bookId: number, targetIndex: number) => typedError<null, string>(__TAURI_INVOKE("move_book", { bookId, targetIndex })),
+	setBookShelf: (bookId: number, shelf: number | null) => typedError<null, string>(__TAURI_INVOKE("set_book_shelf", { bookId, shelf })),
 	relinkBook: (bookId: number, path: string) => typedError<Book_Serialize, string>(__TAURI_INVOKE("relink_book", { bookId, path })),
 	refreshMissing: () => typedError<number[], string>(__TAURI_INVOKE("refresh_missing")),
 	searchLibrary: (query: string) => typedError<number[], string>(__TAURI_INVOKE("search_library", { query })),
@@ -154,6 +155,9 @@ export type Book_Deserialize = {
 	/**  Convenience URL for the webview; not persisted. */
 	coverUrl?: string | null,
 	position: number,
+	/**  Shelf the reader placed this book on (0-based, counted across cases).
+	 *  `None` lets the packer decide. */
+	shelf?: number | null,
 	addedAt: number,
 	lastOpenedAt?: number | null,
 	/**  0.0 .. 1.0 */
@@ -184,6 +188,9 @@ export type Book_Serialize = {
 	/**  Convenience URL for the webview; not persisted. */
 	coverUrl: string | null,
 	position: number,
+	/**  Shelf the reader placed this book on (0-based, counted across cases).
+	 *  `None` lets the packer decide. */
+	shelf: number | null,
 	addedAt: number,
 	lastOpenedAt: number | null,
 	/**  0.0 .. 1.0 */

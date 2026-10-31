@@ -1558,27 +1558,20 @@ dialog.modal::backdrop {
   cursor: default;
 }
 
+/* The panel floats over the page instead of taking a grid column. Reserving a
+   column re-laid-out the stage, so the PDF re-fitted as the panel opened: the
+   sheet jumped, and with the thumbnail panel it slid out of view entirely.
+   Overlaying leaves the document exactly where the reader left it. */
 .reader-body {
   position: relative;
   min-height: 0;
   display: grid;
-  grid-template-columns: 0 1fr 0;
-  transition: grid-template-columns 0.25s ease;
-}
-
-#reader-root[data-panel="left"] .reader-body {
-  grid-template-columns: 320px 1fr 0;
-}
-
-#reader-root[data-panel="right"] .reader-body {
-  grid-template-columns: 0 1fr 330px;
+  grid-template-columns: 1fr;
 }
 
 .reader-stage {
   position: relative;
-  /* Always the middle column: the side panel is display:none while closed, so
-     without this the stage would be placed in the 0-width first column. */
-  grid-column: 2;
+  grid-column: 1;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
@@ -1586,18 +1579,17 @@ dialog.modal::backdrop {
 }
 
 .reader-side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: min(340px, 86vw);
   overflow: hidden auto;
   background: var(--r-panel);
   border-inline: 1px solid transparent;
   min-width: 0;
-  /* The panel is the first grid child and the stage is pinned to column 2, so
-     without explicit placement the panel auto-places into column 1. That is
-     the 0-width column when it sits on the right, which made the appearance
-     and thumbnail panels open invisibly. */
-  grid-column: 1;
-  /* Keep the panel's content inside its own box: nothing in a side panel should
-     be able to paint over the toolbar or the stage. */
-  contain: paint;
+  z-index: 4;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--r-border) 70%, transparent),
+    0 18px 48px rgba(0, 0, 0, 0.28);
 }
 
 /* Buttons inside the reader follow the reading palette, not the shelf theme:
@@ -1617,8 +1609,12 @@ dialog.modal::backdrop {
   opacity: 0.4;
 }
 
+#reader-root[data-panel="left"] .reader-side {
+  left: 0;
+}
+
 #reader-root[data-panel="right"] .reader-side {
-  grid-column: 3;
+  right: 0;
 }
 
 #reader-root[data-panel="left"] .reader-side-left,

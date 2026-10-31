@@ -328,6 +328,8 @@ export class PdfReader implements ReaderAdapter {
       if (this.fitMode === "custom") this.scale = zoom ?? ACTUAL_SIZE;
     }
     if (layoutChanged || fitChanged) {
+      // Rebuilt pages pick up the night class themselves (see renderPage), so
+      // an appearance change can no longer switch night mode off.
       await this.rebuild(this.current);
     } else {
       this.applyThemeClass();
@@ -579,6 +581,10 @@ export class PdfReader implements ReaderAdapter {
       const dpr = Math.min(window.devicePixelRatio || 1, this.perf ? 1.5 : 2);
       const el = document.createElement("div");
       el.className = "pdf-page";
+      // Pages are rebuilt whenever the layout, zoom or rotation changes; night
+      // mode has to be applied to the new element too, otherwise changing any
+      // appearance setting silently turned it off.
+      el.classList.toggle("night", this.night);
       el.dataset.page = String(page);
       el.style.width = `${viewport.width}px`;
       el.style.height = `${viewport.height}px`;
