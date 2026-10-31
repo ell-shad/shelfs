@@ -4,6 +4,9 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>Bookshelf</name>
+  <developer id="github.com.ell-shad">
+    <name>Elshad Guliyev</name>
+  </developer>
   <summary>Your local PDF and EPUB library on a 3D bookcase</summary>
   <description>
     <p>
@@ -19,7 +22,7 @@
       <li>Everything offline and private: no accounts, no telemetry, no network access</li>
     </ul>
   </description>
-  <launchable type="desktop-id">bookshelf.desktop</launchable>
+  <launchable type="desktop-id">Bookshelf.desktop</launchable>
   <url type="homepage">https://github.com/ell-shad/shelfs</url>
   <categories>
     <category>Office</category>
@@ -44,4 +47,4 @@
     </release>
   </releases>
   <content_rating type="oars-1.1" />
-</appstream>
+</component>

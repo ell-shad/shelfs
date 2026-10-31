@@ -125,7 +125,7 @@ fn snapshot(state: &AppState) -> AppResult<LibrarySnapshot> {
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_app_info(state: St<'_>) -> AppResult<AppInfo> {
+pub fn get_app_info(app: AppHandle, state: St<'_>) -> AppResult<AppInfo> {
     Ok(AppInfo {
         version: env!("CARGO_PKG_VERSION").to_string(),
         data_dir: state.paths.data_dir.to_string_lossy().to_string(),
@@ -133,7 +133,7 @@ pub fn get_app_info(state: St<'_>) -> AppResult<AppInfo> {
         config_dir: state.paths.config_dir.to_string_lossy().to_string(),
         db_path: state.paths.db_path.to_string_lossy().to_string(),
         webkit_version: tauri::webview_version().unwrap_or_else(|_| "unknown".into()),
-        app_id: "com.example.Bookshelf".into(),
+        app_id: app.config().identifier.clone(),
         protocol_base: protocol::base().to_string(),
     })
 }
