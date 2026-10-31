@@ -6,7 +6,7 @@ network access, no telemetry. Book files are opened read-only and never modified
 
 | Light | Dark |
 |---|---|
-| ![The shelf in the light theme](screenshots/shelf-light.png) | ![The shelf in the dark theme](screenshots/shelf-dark.png) |
+| ![The bookcase in its room, light theme](screenshots/shelf-room.png) | ![The bookcase in its room, dark theme](screenshots/shelf-room-dark.png) |
 
 | Book card | EPUB reader | Accessible list view |
 |---|---|---|
@@ -22,7 +22,10 @@ How each number in the prototype spec maps onto the code is in
 - **Shelf.** Every book is a 3D book with a generated spine (title, author, status
   dot) or its real cover. Books drop in when imported, slide when removed, and
   the shelf wraps into as many cases as the library needs (arrow keys, on-screen
-  arrows, shift-drag or horizontal scroll move between cases).
+  arrows, shift-drag or horizontal scroll move between cases). The case stands in
+  a room — rug, window, framed prints, a potted plant and a side table with
+  flowers — all drawn procedurally, so there are no image assets to ship. Books
+  can be dragged onto any shelf and stay there.
 - **Library.** Import by file picker, drag and drop, "Open with", or the command
   line. Duplicate detection by content hash, background import with a per-file
   error summary, metadata and cover extraction, spine colour from the cover,
@@ -140,16 +143,28 @@ measured — see the caveats there.
 
 ## Packaging notes
 
-- App id `com.example.Bookshelf` is a **placeholder** — replace it with a real
-  reverse-DNS id before publishing (it affects the .desktop name, MIME handler and
-  data directory).
+- App id `com.ellshad.bookshelf` (it affects the .desktop name, MIME handler and
+  data directory). The library itself lives in `~/.local/share/bookshelf`, which is
+  independent of the id, so renaming the id never moves your books.
 - `.deb` ships the `.desktop` file, hicolor icons and the AppStream metainfo in
-  [packaging/com.example.Bookshelf.metainfo.xml](packaging/com.example.Bookshelf.metainfo.xml).
+  [packaging/com.ellshad.bookshelf.metainfo.xml](packaging/com.ellshad.bookshelf.metainfo.xml).
 - On exotic GPUs or Wayland compositors where the window stays blank, run once with
   `WEBKIT_DISABLE_COMPOSITING_MODE=1` (and/or `WEBKIT_DISABLE_DMABUF_RENDERER=1`).
   The app also detects software rendering and offers performance mode.
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE). Bundled fonts are SIL OFL 1.1 (Literata, Source Serif
-4, Gelasio, Inter, OpenDyslexic); see [ui/public/fonts](ui/public/fonts/OFL.txt).
+Bookshelf is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. It is distributed in the hope that it will be useful, but **without any
+warranty**, without even the implied warranty of merchantability or fitness for a
+particular purpose. See the [GNU General Public License](LICENSE) for details.
+
+Copyright (C) 2026 Elshad Guliyev.
+
+Third-party components keep their own licences: Tauri and three.js are MIT,
+pdf.js is Apache-2.0, and the bundled fonts are SIL OFL 1.1 (Literata, Source
+Serif 4, Gelasio, Inter, OpenDyslexic); see [ui/public/fonts](ui/public/fonts/OFL.txt).
+The GPL text and the third-party notices ship with the `.deb` under
+`/usr/share/doc/bookshelf/`.

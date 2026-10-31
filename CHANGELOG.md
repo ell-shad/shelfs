@@ -7,6 +7,17 @@ SemVer once 1.0 is out.
 
 ### Added
 
+- **The bookcase now stands in a room.** A woven rug, a bright window with a sill,
+  two framed prints, a potted plant with flowers and a small round table set with
+  books, a mug and a vase of tulips are generated procedurally (no image assets) and
+  pan with the camera, so every case is furnished. Everything follows the light and
+  dark palettes.
+- **A proper About section, and GPLv3.** The app identifier is now
+  `com.ellshad.bookshelf`, Bookshelf is licensed under the GNU General Public
+  License v3.0 or later, and About lists the licence, copyright, source code and
+  third-party credits. The `.deb` installs the GPL text and the third-party notices
+  to `/usr/share/doc/bookshelf/`.
+
 - **Place a book on any shelf.** Dragging a book up or down onto another shelf
   pins it there; the shelf it was dropped on is remembered per book, the board
   under the pointer lights up while dragging, and dropping a book back beside its

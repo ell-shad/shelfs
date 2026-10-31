@@ -3,6 +3,7 @@ import type { Book, LibrarySnapshot } from "../lib/api";
 import type { ShelfSlot } from "../bindings";
 import { clamp } from "../lib/format";
 import { coverTexture, makeWoodTexture, SpineCache, textureFromCanvas, drawSpineTexture } from "./textures";
+import { createRoom, type RoomHandle } from "./room";
 
 export const CASE_PITCH = 9.2;
 export const SHELF_SPACING = 1.9;
@@ -120,6 +121,7 @@ export class ShelfView {
   private backMaterial: THREE.MeshStandardMaterial;
   private floor: THREE.Mesh;
   private wall: THREE.Mesh;
+  private room: RoomHandle;
   private hemisphere: THREE.HemisphereLight;
   private ambient: THREE.AmbientLight;
   private sun: THREE.DirectionalLight;
@@ -272,6 +274,10 @@ export class ShelfView {
     this.wall.position.set(0, 20, -1.4);
     this.wall.receiveShadow = true;
     this.scene.add(this.wall);
+
+    // The rest of the room: rug, window, pictures, plant and side table.
+    this.room = createRoom(this.theme);
+    this.scene.add(this.room.group);
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(container);
@@ -526,6 +532,7 @@ export class ShelfView {
     this.trimMaterial.color.setHex(this.theme === "dark" ? 0xb8a693 : 0xffffff);
     this.boardMaterial.color.setHex(this.theme === "dark" ? 0x9b8a78 : 0xffffff);
     this.backMaterial.color.setHex(this.theme === "dark" ? 0x7d6a56 : 0xd8c4a8);
+    this.room.setTheme(this.theme);
   }
 
   setPerformanceMode(enabled: boolean): void {
@@ -539,6 +546,7 @@ export class ShelfView {
       view.bodies.castShadow = !enabled;
       for (const item of view.items) if (item.spine) item.spine.castShadow = !enabled;
     }
+    this.room.setPerformanceMode(enabled);
     this.resize();
   }
 
@@ -579,6 +587,7 @@ export class ShelfView {
     this.lamp.position.set(targetX - 3.4, 6.4, 3.4);
     this.floor.position.x = targetX;
     this.wall.position.x = targetX;
+    this.room.group.position.x = targetX;
     const rounded = Math.round(this.caseFloat);
     if (rounded !== this.caseIndicator) {
       this.caseIndicator = rounded;
@@ -1219,6 +1228,7 @@ export class ShelfView {
     (this.floor.geometry).dispose();
     (this.wall.material as THREE.Material).dispose();
     (this.wall.geometry).dispose();
+    this.room.dispose();
     this.renderer.dispose();
     dom.remove();
   }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>com.example.Bookshelf</id>
+  <id>com.ellshad.bookshelf</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>MIT OR Apache-2.0</project_license>
+  <project_license>GPL-3.0-or-later</project_license>
   <name>Bookshelf</name>
   <summary>Your local PDF and EPUB library on a 3D bookcase</summary>
   <description>
@@ -20,7 +20,7 @@
     </ul>
   </description>
   <launchable type="desktop-id">bookshelf.desktop</launchable>
-  <url type="homepage">https://example.invalid/bookshelf</url>
+  <url type="homepage">https://github.com/ell-shad/shelfs</url>
   <categories>
     <category>Office</category>
     <category>Viewer</category>
@@ -34,8 +34,8 @@
   </keywords>
   <screenshots>
     <screenshot type="default">
-      <caption>The bookcase at night</caption>
-      <image>https://example.invalid/bookshelf/screenshot-dark.png</image>
+      <caption>The bookcase in its room</caption>
+      <image>https://raw.githubusercontent.com/ell-shad/shelfs/master/screenshots/shelf-room.png</image>
     </screenshot>
   </screenshots>
   <releases>

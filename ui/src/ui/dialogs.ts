@@ -471,6 +471,23 @@ export function settingsDialog(
     el("dd", { class: "path" }, `${info.configDir}/settings.json`),
     el("dt", {}, "App ID"),
     el("dd", {}, info.appId),
+    el("dt", {}, t("licence")),
+    el("dd", {}, t("licenceName")),
+    el("dt", {}, t("copyright")),
+    el("dd", {}, "© 2026 Elshad Guliyev"),
+    el("dt", {}, t("sourceCode")),
+    el("dd", {}, "github.com/ell-shad/shelfs"),
+  );
+
+  const copyrightNotice = el(
+    "p",
+    { class: "modal-text" },
+    t("licenceNotice"),
+  );
+  const credits = el(
+    "p",
+    { class: "field-hint" },
+    t("credits"),
   );
 
   const body = el(
@@ -580,6 +597,8 @@ export function settingsDialog(
       el("h3", {}, t("about")),
       el("p", { class: "modal-text" }, t("aboutBody", { version: info.version })),
       paths,
+      copyrightNotice,
+      credits,
     ),
   );
 
