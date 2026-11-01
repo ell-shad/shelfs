@@ -45,10 +45,14 @@ jobs:
         run: |
           cargo install cargo-audit --locked
           cargo install cargo-deny --locked
+      # cargo-audit has no --manifest-path; both tools pick up the crate (and
+      # src-tauri/deny.toml) from the working directory instead.
       - name: Audit advisories
-        run: cargo audit --manifest-path src-tauri/Cargo.toml
+        working-directory: src-tauri
+        run: cargo audit
       - name: Licence and source policy
-        run: cargo deny --manifest-path src-tauri/Cargo.toml check
+        working-directory: src-tauri
+        run: cargo deny check
 
   frontend:
     name: Frontend (typecheck, lint, tests, build)
