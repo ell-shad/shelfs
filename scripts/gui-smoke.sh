@@ -65,7 +65,7 @@ xvfb-run -a --server-args='-screen 0 1440x900x24' \
     "'"$bin"'" '"$(printf '%q ' "$@")"' >"'"$log"'" 2>&1 &
     app=$!
     for _ in $(seq 1 60); do
-      if xdotool search --name "My Bookshelf" >/dev/null 2>&1; then break; fi
+      if xdotool search --name "Shelfs" >/dev/null 2>&1; then break; fi
       sleep 0.5
     done
     sleep '"$wait_s"'

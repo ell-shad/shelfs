@@ -1,8 +1,12 @@
-# Bookshelf
+# Shelfs
 
 [![CI](https://github.com/ell-shad/shelfs/actions/workflows/ci.yml/badge.svg)](https://github.com/ell-shad/shelfs/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/ell-shad/shelfs)](https://github.com/ell-shad/shelfs/releases/latest)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 [![Made with Rust and Tauri](https://img.shields.io/badge/made%20with-Rust%20%2B%20Tauri-9d6b3f)](https://tauri.app)
+
+Download the `.deb` or the AppImage from the
+[latest release](https://github.com/ell-shad/shelfs/releases/latest).
 
 A local-first PDF and EPUB library for Ubuntu, drawn as a wooden bookcase you can
 turn, zoom and take books from. Everything stays on your disk: no account, no
@@ -158,7 +162,7 @@ measured — see the caveats there.
 
 ## Licence
 
-Bookshelf is free software: you can redistribute it and/or modify it under the
+Shelfs is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version. It is distributed in the hope that it will be useful, but **without any

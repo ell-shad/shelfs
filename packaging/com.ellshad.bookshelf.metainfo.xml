@@ -3,14 +3,14 @@
   <id>com.ellshad.bookshelf</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
-  <name>Bookshelf</name>
+  <name>Shelfs</name>
   <developer id="github.com.ell-shad">
     <name>Elshad Guliyev</name>
   </developer>
   <summary>Your local PDF and EPUB library on a 3D bookcase</summary>
   <description>
     <p>
-      Bookshelf keeps your PDF and EPUB files on your own disk and draws them as books on a
+      Shelfs keeps your PDF and EPUB files on your own disk and draws them as books on a
       wooden bookcase. It reads them, remembers where you stopped, and never touches the files
       themselves.
     </p>
@@ -22,7 +22,7 @@
       <li>Everything offline and private: no accounts, no telemetry, no network access</li>
     </ul>
   </description>
-  <launchable type="desktop-id">Bookshelf.desktop</launchable>
+  <launchable type="desktop-id">Shelfs.desktop</launchable>
   <url type="homepage">https://github.com/ell-shad/shelfs</url>
   <categories>
     <category>Office</category>

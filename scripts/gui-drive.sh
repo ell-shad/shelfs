@@ -41,7 +41,7 @@ xvfb-run -a --server-args='-screen 0 1440x900x24' bash -c '
   set -uo pipefail
   "$BIN" "$@" >"$PROFILE/app.log" 2>&1 &
   app=$!
-  for _ in $(seq 1 90); do xdotool search --name "My Bookshelf" >/dev/null 2>&1 && break; sleep 0.5; done
+  for _ in $(seq 1 90); do xdotool search --name "Shelfs" >/dev/null 2>&1 && break; sleep 0.5; done
   shot() { import -window root "$OUT/$1.png"; echo "shot $1"; }
   sleep 14
   if [[ -n ${STEPS_FILE:-} ]]; then

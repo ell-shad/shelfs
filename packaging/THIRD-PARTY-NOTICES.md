@@ -1,6 +1,6 @@
 # Third-party notices
 
-Bookshelf is distributed under the GNU General Public License, version 3 or later
+Shelfs is distributed under the GNU General Public License, version 3 or later
 (see `LICENSE`). It is built on the following components, which keep their own
 licences:
 

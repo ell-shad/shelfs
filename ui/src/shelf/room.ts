@@ -217,6 +217,52 @@ function addCylinder(
   return mesh;
 }
 
+/**
+ * A tulip-style head: a tapering cup, three petals folded over the rim and a
+ * pointed tip. Built with its base at the origin and growing up +Y, so it can be
+ * dropped straight onto the end of a stem and inherit the stem's lean.
+ */
+function addBloom(
+  parent: THREE.Object3D,
+  material: THREE.Material,
+  size: number,
+): THREE.Group {
+  const bloom = new THREE.Group();
+
+  const cup = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.34 * size, 0.14 * size, 0.66 * size, 10),
+    material,
+  );
+  cup.position.y = 0.33 * size;
+  cup.castShadow = true;
+  bloom.add(cup);
+
+  const petalGeometry = new THREE.SphereGeometry(0.19 * size, 7, 6);
+  for (let i = 0; i < 3; i += 1) {
+    const angle = (i / 3) * Math.PI * 2;
+    const petal = new THREE.Mesh(petalGeometry, material);
+    petal.position.set(
+      Math.cos(angle) * 0.16 * size,
+      0.46 * size,
+      Math.sin(angle) * 0.16 * size,
+    );
+    petal.scale.set(1, 1.8, 0.7);
+    petal.rotation.set(0.34 * Math.cos(angle), -angle, 0.34 * Math.sin(angle));
+    bloom.add(petal);
+  }
+
+  const tip = new THREE.Mesh(
+    new THREE.ConeGeometry(0.19 * size, 0.3 * size, 10),
+    material,
+  );
+  tip.position.y = 0.74 * size;
+  tip.castShadow = true;
+  bloom.add(tip);
+
+  parent.add(bloom);
+  return bloom;
+}
+
 export function createRoom(theme: "light" | "dark"): RoomHandle {
   const group = new THREE.Group();
   group.name = "room";
@@ -266,14 +312,26 @@ export function createRoom(theme: "light" | "dark"): RoomHandle {
   const linen = new THREE.MeshStandardMaterial({ color: 0xf1e3c8, roughness: 0.95 });
   const glass = new THREE.MeshStandardMaterial({
     color: 0xdfe9ee,
-    roughness: 0.12,
+    roughness: 0.05,
     metalness: 0,
     transparent: true,
-    opacity: 0.45,
+    opacity: 0.3,
+    // Both faces and no depth writes, so stems stay visible through the vase
+    // instead of the near wall hiding whatever is behind it.
+    side: THREE.DoubleSide,
+    depthWrite: false,
   });
   const bloomMaterials = [0xd4636b, 0xe8a0a8, 0xf0cf8a, 0xc9556d].map(
     (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.7 }),
   );
+  // Wraps around, so callers can pass any integer (including a negative one)
+  // without indexing out of the palette.
+  const bloomFor = (index: number): THREE.MeshStandardMaterial => {
+    const count = bloomMaterials.length;
+    const material = bloomMaterials[((index % count) + count) % count];
+    if (material) return material;
+    return new THREE.MeshStandardMaterial({ color: 0xd4636b, roughness: 0.7 });
+  };
   const paperWhite = tint(
     new THREE.MeshStandardMaterial({ color: 0xf3ead7, roughness: 0.9 }),
     0xf3ead7,
@@ -344,6 +402,7 @@ export function createRoom(theme: "light" | "dark"): RoomHandle {
     addBox(group, [width + 0.22, 0.12, 0.1], [x, y + height / 2 + 0.05, WALL_Z + 0.05], darkWood);
     addBox(group, [width + 0.22, 0.12, 0.1], [x, y - height / 2 - 0.05, WALL_Z + 0.05], darkWood);
     addBox(group, [0.12, height + 0.22, 0.1], [x - width / 2 - 0.05, y, WALL_Z + 0.05], darkWood);
+    addBox(group, [0.12, height + 0.22, 0.1], [x + width / 2 + 0.05, y, WALL_Z + 0.05], darkWood);
     addBox(group, [width + 0.12, height + 0.22, 0.05], [x, y, WALL_Z - 0.01], paperWhite, false);
   };
   frameFor(5.85, 6.35, 1.55, 1.95, "sun");
@@ -371,7 +430,7 @@ export function createRoom(theme: "light" | "dark"): RoomHandle {
   soilDisc.position.y = 0.98;
   plant.add(soilDisc);
 
-  const leafGeometry = new THREE.SphereGeometry(0.44, 10, 7);
+  const leafGeometry = new THREE.SphereGeometry(0.34, 10, 7);
   const stems: Array<[number, number, number, number]> = [
     [0.02, 1.0, 2.9, 0.1],
     [-0.12, 1.6, 2.5, -0.6],
@@ -380,47 +439,44 @@ export function createRoom(theme: "light" | "dark"): RoomHandle {
     [0.1, 1.2, 3.15, 1.4],
     [-0.16, 2.0, 2.05, 2.2],
   ];
-  for (const [x, z, height, spin] of stems) {
-    const stem = addCylinder(
-      plant,
-      0.035,
-      0.05,
-      height,
-      [x, 0.95 + height / 2, z * 0.22],
+  // Each stem is its own pivot at the soil line: the shaft grows up from the
+  // pivot, leaves and the flower hang off it, and the whole thing leans as one
+  // piece. That keeps every flower attached to the top of its stem.
+  for (const [index, [x, z, height, spin]] of stems.entries()) {
+    const stem = new THREE.Group();
+    stem.position.set(x, 0.95, z * 0.22);
+    stem.rotation.set(Math.sin(spin) * 0.11, 0, Math.cos(spin) * 0.11);
+    plant.add(stem);
+
+    const shaft = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03, 0.05, height, 6).translate(0, height / 2, 0),
       leafDark,
-      6,
     );
-    stem.castShadow = false;
-    for (let i = 0; i < 4; i += 1) {
+    shaft.castShadow = false;
+    stem.add(shaft);
+
+    for (let i = 0; i < 3; i += 1) {
       const leafMesh = new THREE.Mesh(leafGeometry, i % 2 === 0 ? leaf : leafDark);
-      const along = 0.5 + i * 0.16;
+      // Kept low on the stem, so the flower at the tip stays visible.
+      const along = 0.34 + i * 0.17;
       const face = spin + i * 1.9;
-      const reach = 0.1 + (i % 2) * 0.06;
+      const reach = 0.13 + (i % 2) * 0.05;
       leafMesh.position.set(
-        x + Math.cos(face) * reach,
-        0.95 + height * along,
-        z * 0.22 + Math.sin(face) * reach,
+        Math.cos(face) * reach,
+        height * along,
+        Math.sin(face) * reach,
       );
-      leafMesh.scale.set(1.0 + (i % 2) * 0.3, 0.13, 0.5 + (i % 3) * 0.06);
+      leafMesh.scale.set(0.85 + (i % 2) * 0.2, 0.1, 0.4 + (i % 3) * 0.05);
       // Tilted off the horizontal, so the leaves fan out instead of stacking
       // into a column of discs.
       leafMesh.rotation.set(0.42 * Math.cos(face), face, -0.62 - 0.14 * i);
       leafMesh.castShadow = true;
-      plant.add(leafMesh);
+      stem.add(leafMesh);
     }
-  }
-  for (let i = 0; i < 6; i += 1) {
-    const bloom = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(0.17, 0),
-      bloomMaterials[i % bloomMaterials.length],
-    );
-    bloom.position.set(
-      -0.1 + Math.cos(i * 1.7) * 0.58,
-      2.75 + (i % 3) * 0.34,
-      0.18 + Math.sin(i * 1.7) * 0.58,
-    );
-    bloom.castShadow = true;
-    plant.add(bloom);
+
+    const bloom = addBloom(stem, bloomFor(index), 0.52 + (index % 3) * 0.05);
+    bloom.position.y = height;
+    bloom.rotation.y = spin;
   }
 
   // ----------------------------------------------------------- side table
@@ -461,46 +517,50 @@ export function createRoom(theme: "light" | "dark"): RoomHandle {
   handle.castShadow = true;
   table.add(handle);
 
-  // Vase of flowers.
-  addCylinder(table, 0.17, 0.13, 0.52, [0.15, topY + 0.31, 0.42], glass, 18);
+  // Vase of flowers. The vase sits on the table top; every stem pivots at the
+  // mouth of the vase and carries its own flower at the tip, so the tulips lean
+  // with their stems and nothing floats free of the glass.
+  const vaseX = 0.15;
+  const vaseZ = 0.42;
+  const vaseMouthY = topY + 0.57;
+  addCylinder(table, 0.17, 0.13, 0.52, [vaseX, topY + 0.31, vaseZ], glass, 18);
+  const vaseRim = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.014, 6, 18), glass);
+  vaseRim.position.set(vaseX, vaseMouthY, vaseZ);
+  vaseRim.rotation.x = Math.PI / 2;
+  table.add(vaseRim);
   const vaseWater = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.14, 0.12, 0.26, 16),
-    new THREE.MeshStandardMaterial({ color: 0xcfe0d8, roughness: 0.3, transparent: true, opacity: 0.6 }),
+    new THREE.CylinderGeometry(0.15, 0.13, 0.3, 16),
+    new THREE.MeshStandardMaterial({
+      color: 0xc7dcd2,
+      roughness: 0.25,
+      transparent: true,
+      opacity: 0.5,
+      depthWrite: false,
+    }),
   );
-  vaseWater.position.set(0.15, topY + 0.22, 0.42);
+  vaseWater.position.set(vaseX, topY + 0.24, vaseZ);
   vaseWater.castShadow = false;
   table.add(vaseWater);
   const stemMaterial = new THREE.MeshStandardMaterial({ color: 0x4c7049, roughness: 0.8 });
   for (let i = 0; i < 5; i += 1) {
-    const angle = (i / 5) * Math.PI * 2;
-    const lean = 0.1 + (i % 2) * 0.06;
-    const stem = addCylinder(
-      table,
-      0.018,
-      0.018,
-      0.72,
-      [
-        0.15 + Math.cos(angle) * lean,
-        topY + 0.62,
-        0.42 + Math.sin(angle) * lean,
-      ],
+    const angle = (i / 5) * Math.PI * 2 + 0.25;
+    const lean = 0.15 + (i % 2) * 0.1;
+    const length = 0.74 + (i % 3) * 0.08;
+    const stem = new THREE.Group();
+    stem.position.set(vaseX, topY + 0.3, vaseZ);
+    // Small-angle lean toward `angle`: +X tilts by -z rotation, +Z by +x.
+    stem.rotation.set(Math.sin(angle) * lean, 0, -Math.cos(angle) * lean);
+    table.add(stem);
+
+    const shaft = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.019, 0.024, length, 5).translate(0, length / 2, 0),
       stemMaterial,
-      5,
     );
-    stem.rotation.z = Math.cos(angle) * 0.16;
-    stem.rotation.x = -Math.sin(angle) * 0.16;
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(0.155, 9, 7),
-      bloomMaterials[i % bloomMaterials.length],
-    );
-    head.position.set(
-      0.15 + Math.cos(angle) * (lean + 0.12),
-      topY + 0.98 + (i % 3) * 0.06,
-      0.42 + Math.sin(angle) * (lean + 0.12),
-    );
-    head.scale.set(1, 0.9, 1);
-    head.castShadow = true;
-    table.add(head);
+    stem.add(shaft);
+
+    const head = addBloom(stem, bloomFor(i), 0.42);
+    head.position.y = length;
+    head.rotation.y = angle;
   }
 
   // A folded paper and a candle jar, for a lived-in table.

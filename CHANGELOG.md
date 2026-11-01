@@ -1,9 +1,27 @@
 # Changelog
 
-All notable changes to Bookshelf. Format follows Keep a Changelog; versions follow
+All notable changes to Shelfs. Format follows Keep a Changelog; versions follow
 SemVer once 1.0 is out.
 
 ## [Unreleased]
+
+### Fixed
+
+- **Flowers no longer float or look broken.** Every potted plant stem is now its own
+  pivot: the shaft, its leaves and a tulip-shaped head (cup, three petals, pointed
+  bud) hang off one another, so each flower sits on the end of a stem that leans with
+  it. The table vase gets the same treatment, its stems rise from the mouth of the
+  glass instead of hovering beside it, the glass is double-sided and no longer hides
+  what is inside it, and the vase has a rim.
+- **Framed prints have both side rails.** Only the top, bottom and left boards were
+  drawn, so every picture was open on the right.
+
+### Changed
+
+- **The app is called Shelfs.** Window title, About dialog, boot text, the `.desktop`
+  entry, the AppStream name, the bundle file names and the log lines all use the new
+  name. The identifier stays `com.ellshad.bookshelf` and the library stays in
+  `~/.local/share/bookshelf`, so nothing moves.
 
 ### Added
 

@@ -4,7 +4,7 @@
 #   scripts/perf-measure.sh <book-dir> <out-dir>
 #
 # Pass 1 imports the books; passes 2 and 3 measure a cold start (launch -> window
-# mapped, launch -> "Bookshelf started"). Frame rate was measured separately
+# mapped, launch -> "Shelfs started"). Frame rate was measured separately
 # during development with a temporary on-screen probe patched into ShelfView:
 # 220 books under llvmpipe settled to ~40 fps with the shelf already usable.
 # Software GL is used here, so these are the numbers for a machine with no GPU.
@@ -34,10 +34,10 @@ run_once() {
     t_window=""
     t_started=""
     for _ in $(seq 1 400); do
-      if [[ -z $t_window ]] && xdotool search --name "My Bookshelf" >/dev/null 2>&1; then
+      if [[ -z $t_window ]] && xdotool search --name "Shelfs" >/dev/null 2>&1; then
         t_window=$(( ($(date +%s%N) - start) / 1000000 ))
       fi
-      if [[ -z $t_started ]] && grep -q "Bookshelf started" "$PROFILE/app-$TAG.log" 2>/dev/null; then
+      if [[ -z $t_started ]] && grep -q "Shelfs started" "$PROFILE/app-$TAG.log" 2>/dev/null; then
         t_started=$(( ($(date +%s%N) - start) / 1000000 ))
       fi
       [[ -n $t_window && -n $t_started ]] && break
@@ -60,7 +60,7 @@ export XDG_RUNTIME_DIR="$profile/run"
 export LIBGL_ALWAYS_SOFTWARE=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 WEBKIT_DISABLE_DMABUF_RENDERER=1
 export GDK_BACKEND=x11 BOOKSHELF_LOG=info
 # The single-instance lock lives on the session bus; a dead address makes each
-# measurement run standalone even if another Bookshelf window exists.
+# measurement run standalone even if another Shelfs window exists.
 export DBUS_SESSION_BUS_ADDRESS="unix:path=$profile/nobus"
 
 echo "pass 1: importing books (waiting for the import to finish)"

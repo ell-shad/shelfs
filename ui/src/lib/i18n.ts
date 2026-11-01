@@ -2,7 +2,7 @@
 // touching logic. English is the source language.
 
 const strings = {
-  appTitle: "My Bookshelf",
+  appTitle: "Shelfs",
   addBook: "Add book",
   addFolder: "Add a folder…",
   addFolderHint: "Every PDF and EPUB inside will be imported.",
@@ -95,7 +95,7 @@ const strings = {
   performanceHint: "No shadows, lower resolution. Recommended on software rendering.",
   libraryStorage: "Library storage",
   storageReference: "Reference files where they are",
-  storageCopy: "Copy files into the Bookshelf folder",
+  storageCopy: "Copy files into the Shelfs folder",
   storageHint:
     "Reference mode leaves your files untouched. Copy mode keeps its own copy so the book still opens if you move the original.",
   readerDefaults: "Reader defaults",
@@ -128,15 +128,15 @@ const strings = {
   restoreDone: "Restored {n} books ({m} were already here)",
   resetView: "Reset library view",
   resetViewHint: "Manual order, all statuses, 3D shelf, camera at the first case.",
-  about: "About Bookshelf",
+  about: "About Shelfs",
   aboutBody:
-    "Bookshelf {version} · local, offline, private. Your books never leave this computer. Built with Tauri, Rust and three.js.",
+    "Shelfs {version} · local, offline, private. Your books never leave this computer. Built with Tauri, Rust and three.js.",
   licence: "Licence",
   licenceName: "GNU General Public License, version 3 or later (GPL-3.0-or-later)",
   copyright: "Copyright",
   sourceCode: "Source code",
   licenceNotice:
-    "Bookshelf is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. The full licence text is in the app's LICENSE file (installed to /usr/share/doc/bookshelf/ with the .deb package) and can be read at gnu.org/licenses/gpl-3.0.",
+    "Shelfs is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. The full licence text is in the app's LICENSE file (installed to /usr/share/doc/bookshelf/ with the .deb package) and can be read at gnu.org/licenses/gpl-3.0.",
   credits:
     "Third-party software: Tauri and three.js (MIT), pdf.js (Apache-2.0), Literata, Source Serif 4, Gelasio, Inter and OpenDyslexic (SIL OFL 1.1). Full notices ship with the app as THIRD-PARTY-NOTICES.md.",
   dataFolder: "Library folder",
@@ -212,7 +212,7 @@ const strings = {
   coverAlt: "Cover of {title}",
   spineAlt: "Spine of {title} by {author}",
   loading: "Loading…",
-  bootError: "Bookshelf could not start: {message}",
+  bootError: "Shelfs could not start: {message}",
   importHint: "Drop PDF or EPUB files anywhere, or use Add book.",
   dropToImport: "Drop to add to your library",
   chapter: "Chapter",

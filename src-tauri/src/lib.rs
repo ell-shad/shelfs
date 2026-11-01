@@ -1,4 +1,4 @@
-//! Bookshelf — a local-first PDF/EPUB library on a 3D bookcase.
+//! Shelfs — a local-first PDF/EPUB library on a 3D bookcase.
 
 pub mod commands;
 pub mod covers;
@@ -101,18 +101,18 @@ pub fn run() {
     let paths = match AppPaths::discover() {
         Ok(paths) => paths,
         Err(err) => {
-            eprintln!("Bookshelf cannot start: {err}");
+            eprintln!("Shelfs cannot start: {err}");
             std::process::exit(1);
         }
     };
     if let Err(err) = paths.ensure() {
-        eprintln!("Bookshelf cannot create its data folders: {err}");
+        eprintln!("Shelfs cannot create its data folders: {err}");
         std::process::exit(1);
     }
     let state = match AppState::new(paths) {
         Ok(state) => state,
         Err(err) => {
-            eprintln!("Bookshelf cannot open its library: {err}");
+            eprintln!("Shelfs cannot open its library: {err}");
             std::process::exit(1);
         }
     };
@@ -169,14 +169,14 @@ pub fn run() {
             tracing::info!(
                 version = env!("CARGO_PKG_VERSION"),
                 data = %setup_state.paths.data_dir.display(),
-                "Bookshelf started"
+                "Shelfs started"
             );
             Ok(())
         });
 
     let builder = protocol::register(builder);
     if let Err(err) = builder.run(tauri::generate_context!()) {
-        eprintln!("Bookshelf stopped: {err}");
+        eprintln!("Shelfs stopped: {err}");
         std::process::exit(1);
     }
 }

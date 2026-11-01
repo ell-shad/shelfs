@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Bookshelf",
+  "productName": "Shelfs",
   "version": "0.1.0",
   "identifier": "com.ellshad.bookshelf",
   "build": {
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "My Bookshelf",
+        "title": "Shelfs",
         "width": 1280,
         "height": 840,
         "minWidth": 880,
@@ -43,7 +43,7 @@
       "../packaging/THIRD-PARTY-NOTICES.md"
     ],
     "shortDescription": "Your local PDF and EPUB library on a 3D bookcase",
-    "longDescription": "Bookshelf keeps your PDF and EPUB files on your own disk and draws them as books on a wooden bookcase. It reads them, remembers where you stopped, and never touches the files themselves.",
+    "longDescription": "Shelfs keeps your PDF and EPUB files on your own disk and draws them as books on a wooden bookcase. It reads them, remembers where you stopped, and never touches the files themselves.",
     "copyright": "© 2026 Elshad Guliyev",
     "publisher": "Elshad Guliyev",
     "homepage": "https://github.com/ell-shad/shelfs",
