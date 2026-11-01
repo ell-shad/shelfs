@@ -91,12 +91,37 @@ jobs:
           sha256sum deb/*.deb appimage/*.AppImage > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
+      - name: Release notes from the changelog
+        run: |
+          version=$(node -p "require('./package.json').version")
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \\[/ { exit }
+            found { print }
+          ' CHANGELOG.md > section.md
+          if [ ! -s section.md ]; then
+            echo "No changelog section for $version." > section.md
+          fi
+          {
+            echo "Shelfs $version — a local-first PDF and EPUB library on a 3D bookcase."
+            echo
+            echo "### Install"
+            echo
+            echo '```bash'
+            echo "sha256sum -c SHA256SUMS.txt"
+            echo "sudo apt install ./Shelfs_${version}_amd64.deb   # or: chmod +x Shelfs_${version}_amd64.AppImage"
+            echo '```'
+            echo
+            cat section.md
+          } > release-notes.md
+          head -30 release-notes.md
+
       - name: Publish the release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag || github.ref_name }}
           name: Shelfs ${{ inputs.tag || github.ref_name }}
-          generate_release_notes: true
+          body_path: release-notes.md
           fail_on_unmatched_files: true
           files: |
             src-tauri/target/release/bundle/deb/*.deb

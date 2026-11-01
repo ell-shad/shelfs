@@ -136,7 +136,7 @@ const strings = {
   copyright: "Copyright",
   sourceCode: "Source code",
   licenceNotice:
-    "Shelfs is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. The full licence text is in the app's LICENSE file (installed to /usr/share/doc/bookshelf/ with the .deb package) and can be read at gnu.org/licenses/gpl-3.0.",
+    "Shelfs is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. The full licence text is in the app's LICENSE file (installed to /usr/share/doc/shelfs/ with the .deb package) and can be read at gnu.org/licenses/gpl-3.0.",
   credits:
     "Third-party software: Tauri and three.js (MIT), pdf.js (Apache-2.0), Literata, Source Serif 4, Gelasio, Inter and OpenDyslexic (SIL OFL 1.1). Full notices ship with the app as THIRD-PARTY-NOTICES.md.",
   dataFolder: "Library folder",

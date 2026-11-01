@@ -5,6 +5,8 @@ SemVer once 1.0 is out.
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-11-01
+
 ### Fixed
 
 - **Flowers no longer float or look broken.** Every potted plant stem is now its own
@@ -25,6 +27,10 @@ SemVer once 1.0 is out.
 
 ### Added
 
+- **Tagged releases.** Pushing a `v*` tag runs `.github/workflows/release.yml`, which
+  checks that the tag matches the version, typechecks, lints and tests the UI, builds
+  the `.deb` and the AppImage, writes `SHA256SUMS.txt` and publishes all three on
+  GitHub with notes taken from this file.
 - **The bookcase now stands in a room.** A woven rug, a bright window with a sill,
   two framed prints, a potted plant with flowers and a small round table set with
   books, a mug and a vase of tulips are generated procedurally (no image assets) and
@@ -34,7 +40,7 @@ SemVer once 1.0 is out.
   `com.ellshad.bookshelf`, Bookshelf is licensed under the GNU General Public
   License v3.0 or later, and About lists the licence, copyright, source code and
   third-party credits. The `.deb` installs the GPL text and the third-party notices
-  to `/usr/share/doc/bookshelf/`.
+  to `/usr/share/doc/shelfs/`.
 
 - **Place a book on any shelf.** Dragging a book up or down onto another shelf
   pins it there; the shelf it was dropped on is remembered per book, the board

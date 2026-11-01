@@ -175,4 +175,4 @@ Third-party components keep their own licences: Tauri and three.js are MIT,
 pdf.js is Apache-2.0, and the bundled fonts are SIL OFL 1.1 (Literata, Source
 Serif 4, Gelasio, Inter, OpenDyslexic); see [ui/public/fonts](ui/public/fonts/OFL.txt).
 The GPL text and the third-party notices ship with the `.deb` under
-`/usr/share/doc/bookshelf/`.
+`/usr/share/doc/shelfs/`.

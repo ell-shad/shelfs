@@ -66,8 +66,8 @@
         "recommends": ["fonts-noto-core", "fonts-noto-cjk"],
         "files": {
           "usr/share/metainfo/com.ellshad.bookshelf.metainfo.xml": "../packaging/com.ellshad.bookshelf.metainfo.xml",
-          "usr/share/doc/bookshelf/LICENSE": "../LICENSE",
-          "usr/share/doc/bookshelf/THIRD-PARTY-NOTICES.md": "../packaging/THIRD-PARTY-NOTICES.md"
+          "usr/share/doc/shelfs/LICENSE": "../LICENSE",
+          "usr/share/doc/shelfs/THIRD-PARTY-NOTICES.md": "../packaging/THIRD-PARTY-NOTICES.md"
         }
       }
     }
