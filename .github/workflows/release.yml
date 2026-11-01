@@ -93,28 +93,35 @@ jobs:
 
       - name: Release notes from the changelog
         run: |
-          version=$(node -p "require('./package.json').version")
-          awk -v v="$version" '
-            $0 ~ "^## \\[" v "\\]" { found = 1; next }
-            found && /^## \\[/ { exit }
-            found { print }
-          ' CHANGELOG.md > section.md
-          if [ ! -s section.md ]; then
-            echo "No changelog section for $version." > section.md
-          fi
-          {
-            echo "Shelfs $version — a local-first PDF and EPUB library on a 3D bookcase."
-            echo
-            echo "### Install"
-            echo
-            echo '```bash'
-            echo "sha256sum -c SHA256SUMS.txt"
-            echo "sudo apt install ./Shelfs_${version}_amd64.deb   # or: chmod +x Shelfs_${version}_amd64.AppImage"
-            echo '```'
-            echo
-            cat section.md
-          } > release-notes.md
-          head -30 release-notes.md
+          node -e '
+          const fs = require("fs");
+          const { version } = require("./package.json");
+          const heading = "## [" + version + "]";
+          const section = [];
+          let inside = false;
+          for (const line of fs.readFileSync("CHANGELOG.md", "utf8").split("\n")) {
+            if (line.startsWith(heading)) { inside = true; continue; }
+            if (inside && line.startsWith("## [")) break;
+            if (inside) section.push(line);
+          }
+          const body = section.join("\n").trim() || "See CHANGELOG.md.";
+          const notes = [
+            "Shelfs " + version + " — a local-first PDF and EPUB library on a 3D bookcase.",
+            "",
+            "### Install",
+            "",
+            "```bash",
+            "sha256sum -c SHA256SUMS.txt",
+            "sudo apt install ./Shelfs_" + version + "_amd64.deb",
+            "chmod +x Shelfs_" + version + "_amd64.AppImage   # or run this instead",
+            "```",
+            "",
+            body,
+            "",
+          ].join("\n");
+          fs.writeFileSync("release-notes.md", notes);
+          console.log(notes);
+          '
 
       - name: Publish the release
         uses: softprops/action-gh-release@v2
