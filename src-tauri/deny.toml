@@ -7,7 +7,18 @@ targets = [{ triple = "x86_64-unknown-linux-gnu" }]
 [advisories]
 version = 2
 yanked = "warn"
-ignore = []
+# Unmaintained-only advisories for crates we do not use directly and cannot
+# replace yet: `paste` and `proc-macro-error` come from macro crates in the
+# Tauri/GTK build stack, and `zbus_names`, `zvariant`, `zvariant_derive` are the
+# D-Bus bindings behind tauri-plugin-single-instance's `zbus` 5 (zbus 6 absorbs
+# them, so they disappear once the plugin upgrades). None is a vulnerability.
+ignore = [
+  "RUSTSEC-2024-0370", # proc-macro-error, unmaintained
+  "RUSTSEC-2024-0436", # paste, unmaintained
+  "RUSTSEC-2026-0370", # zbus_names, unmaintained
+  "RUSTSEC-2026-0371", # zvariant, unmaintained
+  "RUSTSEC-2026-0372", # zvariant_derive, unmaintained
+]
 
 [licenses]
 version = 2
@@ -28,6 +39,12 @@ allow = [
   "OFL-1.1",
   "BSL-1.0",
 ]
+
+# The app itself is GPL-3.0-or-later; the allow list above still covers only
+# permissive licences for everything it links against.
+[[licenses.exceptions]]
+crate = "bookshelf"
+allow = ["GPL-3.0-or-later"]
 
 [bans]
 multiple-versions = "allow"
