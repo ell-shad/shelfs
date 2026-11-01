@@ -88,7 +88,9 @@ jobs:
       - name: Checksums
         run: |
           cd src-tauri/target/release/bundle
-          sha256sum deb/*.deb appimage/*.AppImage > SHA256SUMS.txt
+          # Flat names: the assets sit side by side in the release, so
+          # `sha256sum -c SHA256SUMS.txt` must work in one directory.
+          sha256sum deb/*.deb appimage/*.AppImage | sed -e 's#deb/##' -e 's#appimage/##' > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Release notes from the changelog
